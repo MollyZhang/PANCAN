@@ -2,14 +2,22 @@ import pandas as pd
 
 
 CLIN = "data/clinical.tsv"
+RNASEQ = "data/RNASeq_transposed.tsv"
 
 def main():
-    df = pd.read_csv(CLIN, sep="\t", low_memory=False)#, index_col="bcr_patient_uuid")
-    #print df['acronym'].value_counts()
-    tissues = df['acronym'].unique()
+    clinical_df = pd.read_csv(CLIN, sep="\t", low_memory=False)#, index_col="bcr_patient_uuid")
+    rnaseq_df = pd.read_csv(RNASEQ, sep="\t")
+    short_barcode = [i[:12] for i in rnaseq_df['sample_barcode']]
+    rnaseq_df['short_barcode'] = short_barcode
+
+    #print clinical_df['acronym'].value_counts()
+    tissues = clinical_df['acronym'].unique()
     for tissue in tissues:
-        tissue_df = df[df['acronym'] == tissue]
-        tissue_df.to_csv("data/by_tissue_Clinical/clinical_{0}.tsv".format(tissue), sep="\t", index=False)
+        barcodes = list(clinical_df[clinical_df['acronym'] == tissue].bcr_patient_barcode)
+        print tissue, len(barcodes)
+        tissue_df = rnaseq_df[rnaseq_df['short_barcode'].isin(barcodes)].copy(deep=True)
+        tissue_df.drop('short_barcode', axis=1, inplace=True)
+        tissue_df.to_csv("data/by_tissue_RNASeq/RNASeq_{0}.tsv".format(tissue), sep="\t", index=False)
 
 
 if __name__ == '__main__':
