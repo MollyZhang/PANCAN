@@ -9,7 +9,7 @@ RNASEQ_BRCA = "data/by_tissue_RNASeq/RNASeq_BRCA.tsv"
 
 
 def main():
-    cnv_TP53_tranposition()
+    extract_TP53_from_snv()
 
 def create_label():
     """add a TP53 + or - label to RNASeq data"""
@@ -27,8 +27,8 @@ def extract_TP53_from_snv():
         if index%1000 == 0:
             print "line", index
         gene = line.strip().split("\t")[60]
-        barcode = line.strip().split("\t")[40]
         if gene == "TP53":
+            barcode = line.strip().split("\t")[16]
             f_out.write(line.strip() + "\t{0}\n".format(barcode[:12]))
     f.close()
     f_out.close()
